@@ -2,56 +2,53 @@ const express = require("express");
 const router = express.Router();
 const User = require('../models/User')
 
-router.post(
-    "/users",
-    async (req, res) => {
-      const { first_name,last_name, email,gender,avatar,domain,available } = req.body;
-      try{
-        const details = await User.create({
-          first_name,last_name, email,gender,avatar,domain,available
-        });
-        res.send(details);
-      }
-      catch(e){
-        return res.status(404).json({error : "Email address must be unique"});
-      }
 
-    }
-  );
-
+//Retrieve all users
 router.get("/users",async (req, res) => {
   try {
     const n = await User.find();
-    res.json(n);
+    return res.json({success : true,users : n});
   } catch(error) {
-    return res.status(400).json({ errors: error });
+    return res.status(400).json({ errors: error,success : false });
   }
-}
-)
+})
+
+//Retrieve a specific user by ID.
 router.get(`/users/:id`,async (req, res) => {
   let id = req.params.id;
   try {
-    const n = await User.findById(id);
-    res.json(n);
+    const n = await User.find({id : id});
+    return res.json({success : "User found", users : n});
   } catch(error) {
-    return res.status(404).json({ errors: "User ID does not exist" });
+    return res.status(404).json({ errors: "User ID does not exist",success : false });
   }
-}
-)
-router.put(`/users/:id`,async (req, res) => {
-  try{
-    const currentUser = await User.findById(req.params.id);
-    if(!currentUser){
-      return res.status(404).json({error : "No User found"});
+})
+
+//Create a new user
+router.post(
+  "/users",
+  async (req, res) => {
+    const { first_name,last_name, email,gender,avatar,domain,available } = req.body;
+    try{
+      const details = await User.create({
+        first_name,last_name, email,gender,avatar,domain,available
+      });
+      return res.json({success : "User added", details : details});
     }
-  }
-  catch(err){
-    res.status(404).send(err)
-  }
-  const { first_name,last_name,email,gender,avatar,domain,available } = req.body;
+    catch(e){
+      return res.status(404).json({error : "Email address must be unique",success : false});
+    }
+  });
+
+//Update an existing user
+router.put(`/users/:id`,async (req, res) => {
+  const { id,first_name,last_name,email,gender,avatar,domain,available } = req.body;
   let updatedDetails = {};
   try {
     try{
+    if (id) {
+      updatedDetails.id = id;
+    }
       if (first_name) {
       updatedDetails.first_name = first_name;
     }
@@ -71,26 +68,22 @@ router.put(`/users/:id`,async (req, res) => {
     if (domain) {
       updatedDetails.domain = domain;
     }
-    if (available) {
-      updatedDetails.available = available;
-    }}
+    updatedDetails.available=available;
+  }
     catch(err){
-      res.json({error : err});
+      res.json({error : err,success : false});
     }
-    await User.findByIdAndUpdate(
-      req.params.id,
-      {$set : updatedDetails},
-      { new: true }
+    await User.findOneAndUpdate(
+      {id : req.params.id},
+      updatedDetails
     );
-    console.log("2");
     res.send({updatedDetails});
   } catch(error) {
-    return res.status(404).json({ errors: error });
+    return res.status(404).json({ errors: "ID is not found",success : false });
   }
-}
-)
+})
 
-
+//Delete a user
 router.delete("/users/:id",
   async(req,res)=>{
     try{
@@ -104,8 +97,7 @@ router.delete("/users/:id",
       }
     }
     catch(err){
-      res.status(404).json({error : "Invalid UserID"});
+      return res.status(404).json({error : "Invalid UserID",success : false});
     }
-  }
-)
+  })
   module.exports= router
