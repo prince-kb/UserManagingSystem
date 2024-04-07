@@ -28,15 +28,15 @@ router.get(`/users/:id`,async (req, res) => {
 router.post(
   "/users",
   async (req, res) => {
-    const { first_name,last_name, email,gender,avatar,domain,available } = req.body;
+    const { id,first_name,last_name, email,gender,avatar,domain,available } = req.body;
     try{
       const details = await User.create({
-        first_name,last_name, email,gender,avatar,domain,available
+        id,first_name,last_name, email,gender,avatar,domain,available
       });
       return res.json({success : "User added", details : details});
     }
     catch(e){
-      return res.status(404).json({error : "Email address must be unique",success : false});
+      return res.status(404).json({error : "ID and Email address must be unique",success : false});
     }
   });
 
@@ -87,17 +87,14 @@ router.put(`/users/:id`,async (req, res) => {
 router.delete("/users/:id",
   async(req,res)=>{
     try{
-      const user= await User.findById(req.params.id);
-      if(!user){
-        return res.status(404).json({error : "UserID does not exist"})
-      }
-      else {
-        await User.findByIdAndDelete(req.params.id);
+        const p = await User.findOneAndDelete({id : req.params.id});
+        if(p)
         return res.status(200).json({success : "User deleted"})
+        else return res.status(404).json({error : "Invalid UserID",success : false,err : err});
+
       }
-    }
     catch(err){
-      return res.status(404).json({error : "Invalid UserID",success : false});
+      return res.status(404).json({error : "Invalid UserID",success : false,err : err});
     }
   })
   module.exports= router
