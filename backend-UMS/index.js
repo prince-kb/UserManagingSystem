@@ -16,6 +16,9 @@ app.use('/api',require('./routes/api'))
 app.get('/none',(req,res)=>{
   res.send("RUNNING");
 });
+app.get('/:unknown',(req,res)=>{
+  res.send({error : "UNKNOWN REQUEST, Try rechecking the route request "})
+})
 app.listen(port, () => {
   console.log(`App listening on the port `)
 })  
