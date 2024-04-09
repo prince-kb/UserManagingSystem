@@ -28,6 +28,7 @@ function App() {
 useEffect(()=>{
   p().then((da)=>{
     setFixedUsers(da.users)})
+    .catch((err)=>{console.log("Error occured! Try refreshing")})
 },[])
 
 useEffect(()=>{
@@ -45,6 +46,7 @@ useEffect(()=>{
   const onChange=(e)=>{
     // console.log(e)
     setSuser(e.target.value)
+    setI(0);
     let z = e.target.value.toLowerCase()
     setList(list.filter((val)=>{
       return val.first_name.slice(0,z.length).toLowerCase()===z || val.last_name.slice(0,z.length).toLowerCase()===z
