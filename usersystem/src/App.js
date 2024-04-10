@@ -10,7 +10,7 @@ function App() {
   const [suser, setSuser] = useState("");
   const [list, setList] = useState([]);
   const [access, setAccess] = useState('Add');
-  const [n, setN] = useState({id : "",first_name : "",last_name : "",email : "",gender : "Male",avatar : "",domain : "",availability : true});
+  const [n, setN] = useState({id : "",first_name : "",last_name : "",email : "",gender : "",avatar : "",domain : "",available : true});
   const [h, setH] = useState('hidden');
   const [l, setL] = useState([]);
   const [i, setI] = useState(0);
@@ -48,9 +48,9 @@ function App() {
   }
 
   const editUserReq=async (id,first_name,last_name, email,gender,avatar,domain,available)=>{
-    
+    console.log(id);
     try{
-      const response = await fetch(`${process.env.REACT_APP_HOST}/api/users/id`, {
+      const response = await fetch(`${process.env.REACT_APP_HOST}/api/users/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
@@ -85,9 +85,7 @@ function App() {
   }, [fixedUsers]);
 
   useEffect(() => {
-    setL(
-      list.slice(20 * i, 20 * i + 20 < list.length ? 20 * i + 20 : list.length)
-    );
+    setL(list.slice(20 * i, 20 * i + 20 < list.length ? 20 * i + 20 : list.length));
   }, [list, i]);
 
   const onChange = (e) => {
@@ -124,7 +122,7 @@ function App() {
 
   const onChangeee = (e) => {
     if(e.target.type==='checkbox'){
-      setN({...n,availability : e.target.checked})
+      setN({...n,available : e.target.checked})
     }
     else if(e.target.type === 'select-one'){
       setN({...n,gender : e.target.value})
@@ -141,9 +139,8 @@ function App() {
     const email = n.email.toString();
     const avatar = n.avatar.toString();
     const domain = n.domain.toString();
-    console.log(id,first_name,last_name, email,n.gender,avatar,domain,n.availability)
-    const p = await addUserReq(id,first_name,last_name,email,n.gender,avatar,domain,n.availability);
-    console.log(p);
+    // console.log(id,first_name,last_name, email,n.gender,avatar,domain,n.available)
+    await addUserReq(id,first_name,last_name,email,n.gender,avatar,domain,n.available);
 
     ref.current.click();
 
@@ -160,16 +157,30 @@ function App() {
       setAccess("Edit")
       setH(h==='hidden' ? '' : 'hidden')
       setN(props);
-      console.log(n);
       ref.current.click();
-      // setAccess("Add");
     }
 
-    const editUser=(e)=>{
+    const editUser=async (e)=>{
       e.preventDefault();
-        console.log(n);
-        ref.current.click();
+      const first_name = n.first_name.toString();
+      const last_name = n.last_name.toString();
+      const email = n.email.toString();
+      const avatar = n.avatar.toString();
+      const domain = n.domain.toString();
+
+        await editUserReq(n.id,first_name,last_name,email,n.gender,avatar,domain,n.available);
+        setN({id : "",first_name : "",last_name : "",email : "",gender : "Male",avatar : "",domain : "",available : true});
         setAccess("Add");
+        ref.current.click();
+
+        setLoading(true);
+        fetchUsersReq()
+        .then((da) => {
+          setFixedUsers(da.users);
+        })
+        .catch((err) => {
+          console.log("An error occured! Try refreshing");
+        });
 
     }
 
@@ -213,6 +224,7 @@ function App() {
               name="id"
               value={n.id}
               onChange={onChangeee}
+              disabled={access==="Edit"}
             />
             <label htmlFor="id">ID of the user</label>
           </div>
@@ -249,6 +261,7 @@ function App() {
               name="email"
               value={n.email}
               onChange={onChangeee}
+              disabled={access==="Edit"}
               required
             />
             <label htmlFor="gender">Email of user</label>
@@ -281,7 +294,9 @@ function App() {
           <div className="mb-3 flex justify-around">
 
               <label htmlFor="gender">Select gender</label>
-              <select id="gender" name="gender" onChange={onChangeee}>
+              <select id="gender" name="gender" 
+              value={n.gender} 
+              onChange={onChangeee}>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Agender">Agender</option>
@@ -298,13 +313,14 @@ function App() {
             <div className="flex items-center">
             <input
               type="checkbox"
-              id="availability"
-              name="availability"
-              value={n.availability}
+              id="available"
+              name="available"
               onChange={onChangeee}
+              checked={n.available}
+              value={n.available}
               className="h-[3vh] w-[3vh] mx-3"
             />
-            <label htmlFor="availability" className=""><strong>Availability</strong></label>
+            <label htmlFor="available" className=""><strong>Available</strong></label>
             </div>
 
           </div>
