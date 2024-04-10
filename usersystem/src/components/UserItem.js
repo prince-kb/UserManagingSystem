@@ -25,7 +25,7 @@ const UserItem = (props) => {
                 <div className="flex justify-around mt-[2vh]">
                   <Tooltip arrow title="Add User"><img src={add} alt="Add to team" className='h-[3vh] cursor-pointer'/></Tooltip>
                   <Tooltip arrow title="Edit User"><img onClick={()=>{props.editUser(idd)}} src={edit} alt="Edit User" className='h-[3vh] cursor-pointer'/></Tooltip>
-                  <Tooltip arrow title="Delete User"><img src={del} alt="Delete User" className='h-[3vh] cursor-pointer'/></Tooltip>
+                  <Tooltip arrow title="Delete User"><img onClick={()=>{props.deleteUser(idd)}} src={del} alt="Delete User" className='h-[3vh] cursor-pointer'/></Tooltip>
                   
                   
                 </div>

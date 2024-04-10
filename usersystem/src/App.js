@@ -66,6 +66,23 @@ function App() {
       return err;
     }
   }
+  const deleteUserReq=async (id)=>{
+    console.log(id);
+    try{
+      const response = await fetch(`${process.env.REACT_APP_HOST}/api/users/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      const res = await response.json();
+      return res;
+    }
+    catch(err){
+      console.log(err)
+      return err;
+    }
+  }
 
   useEffect(() => {
     fetchUsersReq()
@@ -106,9 +123,7 @@ function App() {
   const submit = (e) => {
     e.preventDefault();
     setI(0);
-    setL(
-      list.slice(20 * i, 20 * i + 20 < list.length ? 20 * i + 20 : list.length)
-    );
+    setL(list.slice(20 * i, 20 * i + 20 < list.length ? 20 * i + 20 : list.length));
     let z = suser.toLowerCase;
     setList(
       list.filter((val) => {
@@ -181,12 +196,25 @@ function App() {
         .catch((err) => {
           console.log("An error occured! Try refreshing");
         });
+    }
 
+    const deleteUser=async(props)=>{
+        await deleteUserReq(props.id);
+
+        setLoading(true);
+        fetchUsersReq()
+        .then((da) => {
+          setFixedUsers(da.users);
+        })
+        .catch((err) => {
+          console.log("An error occured! Try refreshing");
+        });
     }
 
   return (
     <div className=" text-center flex-col">
       {/* <div><div className="tenor-gif-embed" data-postid="23918898" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/loading-gif-gif-23918898">Loading Gif Sticker</a>from <a href="https://tenor.com/search/loading+gif-stickers">Loading Gif Stickers</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script></div> */}
+
       <h1 className="h1 container my-[3vh]">User Management System</h1>
       <div className="mx-2 flex items-center justify-center gap-[2vw] my-[3vh]">
         <input
@@ -205,7 +233,7 @@ function App() {
         </button>
       </div>
 
-
+      
 
       {/* MODALE */}
       <button className={`btn btn-outline-primary m-2 ${h==='hidden' ? '' : 'hidden'}`} onClick={() => {h === "hidden" ? setH("") : setH("hidden")}}>Add a user</button>
@@ -225,6 +253,7 @@ function App() {
               value={n.id}
               onChange={onChangeee}
               disabled={access==="Edit"}
+              required
             />
             <label htmlFor="id">ID of the user</label>
           </div>
@@ -237,6 +266,8 @@ function App() {
               name="first_name"
               value={n.first_name}
               onChange={onChangeee}
+              minLength={3}
+              required
             />
             <label htmlFor="first_name">First Name</label>
           </div>
@@ -264,7 +295,7 @@ function App() {
               disabled={access==="Edit"}
               required
             />
-            <label htmlFor="gender">Email of user</label>
+            <label htmlFor="email">Email</label>
           </div>
 
           <div className="form-floating mb-3">
@@ -295,7 +326,7 @@ function App() {
 
               <label htmlFor="gender">Select gender</label>
               <select id="gender" name="gender" 
-              value={n.gender} 
+              value={n.gender}
               onChange={onChangeee}>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -305,6 +336,7 @@ function App() {
                 <option value="Genderfluid">Genderfluid</option>
                 <option value="NonBinary">NonBinary</option>
                 <option value="GenderQueer">GenderQueer</option>
+                <option value="GenderQueer">Prefer not to say</option>
               </select>
             
             </div>
@@ -331,18 +363,14 @@ function App() {
 
       <div className="card card-body" style={{ width: "100vw" }}>
         <div className="row">
-          <h2 className="h2 d-flex justify-content-center">
-            {" "}
-            <b>All Users</b>{" "}
-          </h2>
-
+          <h2 className="h2 d-flex justify-content-center"> <b>All Users</b></h2>
           {isLoading && (
             <div className="flex justify-center">
               <img src={spinner} alt="Loading....." />
             </div>
           )}
           {l.length > 0 ? (
-            l.map((user, index) => <UserItem editUser = {editUserPanel} key={index} user={user} />)
+            l.map((user, index) => <UserItem editUser={editUserPanel} deleteUser={deleteUser} key={index} user={user} />)
           ) : (
             <h2 className="h2">No Users available</h2>
           )}
