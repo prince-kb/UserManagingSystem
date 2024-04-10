@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import UserItem from "./components/UserItem";
 import la from "./assets/svg/leftarrow.svg";
 import ra from "./assets/svg/rightarrow.svg";
@@ -7,15 +7,17 @@ import spinner from "./assets/svg/spinner.svg";
 function App() {
   const [fixedUsers, setFixedUsers] = useState([]);
   const [isLoading, setLoading] = useState(true);
-  const [suser, setSuser] = useState();
+  const [suser, setSuser] = useState("");
   const [list, setList] = useState([]);
-  const [n, setN] = useState({});
-  const [h, setH] = useState("hidden");
+  const [access, setAccess] = useState('Add');
+  const [n, setN] = useState({id : "",first_name : "",last_name : "",email : "",gender : "Male",avatar : "",domain : "",availability : true});
+  const [h, setH] = useState('hidden');
   const [l, setL] = useState([]);
   const [i, setI] = useState(0);
+  const ref=useRef();
 
 
-  const p = async () => {
+  const fetchUsersReq = async () => {
     const response = await fetch(`${process.env.REACT_APP_HOST}/api/users`, {
       method: "GET",
       headers: {
@@ -26,8 +28,47 @@ function App() {
     return n;
   };
 
+  const addUserReq=async (id,first_name,last_name, email,gender,avatar,domain,available)=>{
+    try{
+      const response = await fetch(`${process.env.REACT_APP_HOST}/api/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({id,first_name,last_name, email,gender,avatar,domain,available}),
+      });
+      const res = await response.json();
+      return res;
+      // setFixedUsers(fixedUsers.concat(res.user));
+    }
+    catch(err){
+      console.log(err)
+      return err;
+    }
+  }
+
+  const editUserReq=async (id,first_name,last_name, email,gender,avatar,domain,available)=>{
+    
+    try{
+      const response = await fetch(`${process.env.REACT_APP_HOST}/api/users/id`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({id,first_name,last_name, email,gender,avatar,domain,available}),
+      });
+      const res = await response.json();
+      return res;
+      // setFixedUsers(fixedUsers.concat(res.user));
+    }
+    catch(err){
+      console.log(err)
+      return err;
+    }
+  }
+
   useEffect(() => {
-    p()
+    fetchUsersReq()
       .then((da) => {
         setFixedUsers(da.users);
       })
@@ -82,14 +123,55 @@ function App() {
   };
 
   const onChangeee = (e) => {
-    console.log(e);
+    if(e.target.type==='checkbox'){
+      setN({...n,availability : e.target.checked})
+    }
+    else if(e.target.type === 'select-one'){
+      setN({...n,gender : e.target.value})
+    }
+    else setN({...n,[e.target.name]:[e.target.value]});
   };
 
-  const addUs =(e)=>{
-    e.preventDefault()
-    console.log("Submitted");
-    setN({});
+
+  const addUser =async (e)=>{
+    e.preventDefault();
+    const id = n.id[0];
+    const first_name = n.first_name.toString();
+    const last_name = n.last_name.toString();
+    const email = n.email.toString();
+    const avatar = n.avatar.toString();
+    const domain = n.domain.toString();
+    console.log(id,first_name,last_name, email,n.gender,avatar,domain,n.availability)
+    const p = await addUserReq(id,first_name,last_name,email,n.gender,avatar,domain,n.availability);
+    console.log(p);
+
+    ref.current.click();
+
+    fetchUsersReq()
+    .then((da) => {
+      setFixedUsers(da.users);
+    })
+    .catch((err) => {
+      console.log("Error occured! Try refreshing");
+    });
 }
+
+    const editUserPanel = (props)=>{
+      setAccess("Edit")
+      setH(h==='hidden' ? '' : 'hidden')
+      setN(props);
+      console.log(n);
+      ref.current.click();
+      // setAccess("Add");
+    }
+
+    const editUser=(e)=>{
+      e.preventDefault();
+        console.log(n);
+        ref.current.click();
+        setAccess("Add");
+
+    }
 
   return (
     <div className=" text-center flex-col">
@@ -112,93 +194,121 @@ function App() {
         </button>
       </div>
 
-      {/* Add User */}
+
+
+      {/* MODALE */}
       <button className={`btn btn-outline-primary m-2 ${h==='hidden' ? '' : 'hidden'}`} onClick={() => {h === "hidden" ? setH("") : setH("hidden")}}>Add a user</button>
       <div className={`m-4 ${h}`}>
         <div className="flex justify-center">
-        <h2 className="h2 container " >Add user details</h2>
-        <h2 className="h2 mx-[10vw] cursor-pointer" onClick={()=>{h==="hidden" ? setH("") : setH("hidden")}}>X</h2>
+        <h2 className="h2 container " >{access} user details</h2>
+        <h2 className="h2 mx-[10vw] cursor-pointer" ref={ref} onClick={()=>{h==="hidden" ? setH("") : setH("hidden")}}>X</h2>
         </div>
-        <form className="container mb-3">
+
+        <form className="container mb-3" onSubmit={access==="Add" ? addUser : editUser}>
           <div className="form-floating mb-3">
             <input
               type="text"
               className="form-control"
-              id="eid"
-              name="eid"
-              value={n.eid}
+              id="id"
+              name="id"
+              value={n.id}
               onChange={onChangeee}
             />
-            <label htmlFor="eid">ID of the user</label>
+            <label htmlFor="id">ID of the user</label>
           </div>
+
           <div className="form-floating mb-3">
             <input
               type="text"
               className="form-control"
-              id="efname"
-              name="efname"
-              value={n.efname}
+              id="first_name"
+              name="first_name"
+              value={n.first_name}
               onChange={onChangeee}
             />
-            <label htmlFor="efname">First Name</label>
+            <label htmlFor="first_name">First Name</label>
           </div>
+
           <div className="form-floating mb-3">
             <input
               type="text"
               className="form-control"
-              id="elname"
-              name="elname"
-              value={n.lname}
+              id="last_name"
+              name="last_name"
+              value={n.last_name}
               onChange={onChangeee}
             />
-            <label htmlFor="elname">Last Name</label>
+            <label htmlFor="last_name">Last Name</label>
           </div>
+
+          <div className="form-floating mb-3">
+            <input
+              type="email"
+              className="form-control"
+              id="email"
+              name="email"
+              value={n.email}
+              onChange={onChangeee}
+              required
+            />
+            <label htmlFor="gender">Email of user</label>
+          </div>
+
           <div className="form-floating mb-3">
             <input
               type="text"
               className="form-control"
-              id="egender"
-              name="egender"
-              value={n.egender}
+              id="avatar"
+              name="avatar"
+              value={n.avatar}
               onChange={onChangeee}
             />
-            <label htmlFor="egender">Gender of user</label>
+            <label htmlFor="avatar">Avatar Link</label>
           </div>
+
           <div className="form-floating mb-3">
             <input
               type="text"
               className="form-control"
-              id="eavatar"
-              name="eavatar"
-              value={n.eavatar}
+              id="domain"
+              name="domain"
+              value={n.domain}
               onChange={onChangeee}
             />
-            <label htmlFor="eavatar">Avatar Link</label>
+            <label htmlFor="domain">Domain</label>
           </div>
-          <div className="form-floating mb-3">
-            <input
-              type="text"
-              className="form-control"
-              id="edomain"
-              name="edomain"
-              value={n.edomain}
-              onChange={onChangeee}
-            />
-            <label htmlFor="edomain">Domain</label>
-          </div>
-          <div class="flex items-center justify-around mb-3">
+
+          <div className="mb-3 flex justify-around">
+
+              <label htmlFor="gender">Select gender</label>
+              <select id="gender" name="gender" onChange={onChangeee}>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Agender">Agender</option>
+                <option value="Bigender">Bigender</option>
+                <option value="Polygender">Polygender</option>
+                <option value="Genderfluid">Genderfluid</option>
+                <option value="NonBinary">NonBinary</option>
+                <option value="GenderQueer">GenderQueer</option>
+              </select>
+            
+            </div>
+          
+          <div className="flex items-center justify-around mb-3">
             <div className="flex items-center">
             <input
               type="checkbox"
-              name="avail"
-              id="avail"
+              id="availability"
+              name="availability"
+              value={n.availability}
+              onChange={onChangeee}
               className="h-[3vh] w-[3vh] mx-3"
             />
-            <label for="avail" className=""><strong>Availability</strong></label>
+            <label htmlFor="availability" className=""><strong>Availability</strong></label>
             </div>
-            <button type="submit"  className="btn btn-primary" onClick={addUs}>Add Note</button>
 
           </div>
+            <button type="submit" className="btn btn-primary" >{access} Note</button>
 
         </form>
       </div>
@@ -216,7 +326,7 @@ function App() {
             </div>
           )}
           {l.length > 0 ? (
-            l.map((user, index) => <UserItem key={index} user={user} />)
+            l.map((user, index) => <UserItem editUser = {editUserPanel} key={index} user={user} />)
           ) : (
             <h2 className="h2">No Users available</h2>
           )}
