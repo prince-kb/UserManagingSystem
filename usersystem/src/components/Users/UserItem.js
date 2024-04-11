@@ -1,7 +1,7 @@
 import React from 'react'
-import add from '../assets/svg/add.svg'
-import del from '../assets/svg/delete.svg'
-import edit from '../assets/svg/edit.svg'
+import add from '../../assets/svg/add.svg'
+import del from '../../assets/svg/delete.svg'
+import edit from '../../assets/svg/edit.svg'
 import Tooltip from '@mui/material/Tooltip';
 
 
