@@ -3,6 +3,7 @@ import UserItem from "./UserItem";
 import la from "../../assets/svg/leftarrow.svg";
 import ra from "../../assets/svg/rightarrow.svg";
 import spinner from "../../assets/svg/spinner.svg";
+import cross from "../../assets/svg/cross.svg";
 
 function App() {
   const [fixedUsers, setFixedUsers] = useState([]);
@@ -12,6 +13,7 @@ function App() {
   const [access, setAccess] = useState('Add');
   const [n, setN] = useState({id : "",first_name : "",last_name : "",email : "",gender : "",avatar : "",domain : "",available : true});
   const [h, setH] = useState('hidden');
+  const [h1, setH1] = useState('hidden');
   const [l, setL] = useState([]);
   const [i, setI] = useState(0);
   const ref=useRef();
@@ -107,7 +109,7 @@ function App() {
   }, [list, i]);
 
   const onChange = (e) => {
-    // console.log(e)
+    setH1("");
     setSuser(e.target.value);
     setI(0);
     let z = e.target.value.toLowerCase();
@@ -155,7 +157,6 @@ function App() {
     const email = n.email.toString();
     const avatar = n.avatar.toString();
     const domain = n.domain.toString();
-    // console.log(id,first_name,last_name, email,n.gender,avatar,domain,n.available)
     await addUserReq(id,first_name,last_name,email,n.gender,avatar,domain,n.available);
 
     ref.current.click();
@@ -212,8 +213,9 @@ function App() {
         });
     }
 
-    const closeSearch=()=>{
-        
+    const hideSearch=async ()=>{
+      setH1("hidden")
+      setList(fixedUsers)
     }
 
   return (
@@ -351,19 +353,20 @@ function App() {
               <div className="flex items-center gap-[1.5vw]">
               <input
                 type="text"
-                onBlur={() => setList(fixedUsers)}
                 className="px-3 py-2 bg-blue-100 rounded-xl"
                 id="s"
                 placeholder="Search user by name"
                 name="s"
                 value={suser}
                 onChange={onChange}
+                onClick={()=>setH1("")}
+                onBlur={hideSearch}
                 minLength={1}
               />
               <button type="button" className="btn btn-primary " onClick={submit}>Search</button>
+              <img src={cross} alt="X" className={` ${h1} h2 cursor-pointer h-[30px] w-[30px]`} ref1={ref1} onClick={hideSearch}/>
               </div>
             <button className={` btn btn-outline-primary ${h==='hidden' ? '' : 'hidden'}`} onClick={() => {h === "hidden" ? setH("") : setH("hidden")}}>Add a user</button>
-            <h2 className="h2 mx-[10vw] cursor-pointer" ref1={ref1} onClick={closeSearch}>X</h2>
 
           </div>
         <div className="row">
