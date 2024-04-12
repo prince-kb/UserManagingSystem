@@ -165,16 +165,32 @@ function App() {
     .then((da) => {
       setFixedUsers(da.users);
     })
-    .catch((err) => {
+    .catch(() => {
       console.log("Error occured! Try refreshing");
     });
 }
 
     const editUserPanel = (props)=>{
       setAccess("Edit")
-      setH(h==='hidden' ? '' : 'hidden')
+      setH('')
       setN(props);
       ref.current.click();
+    }
+
+    const closeModale=()=>{
+      if(h==="hidden"){
+        setH('')
+      }
+      else {
+        setH("hidden")
+    }
+      }
+
+    
+    const hideSearch=async ()=>{
+      setH1("hidden")
+      setSuser('');
+      setList(fixedUsers)
     }
 
     const editUser=async (e)=>{
@@ -213,19 +229,16 @@ function App() {
         });
     }
 
-    const hideSearch=async ()=>{
-      setH1("hidden")
-      setList(fixedUsers)
-    }
-
   return (
-    <div className=" text-center flex-col border-solid mx-2 my-2">      
+    <div className=" text-center flex-col border-solid my-2 ">      
 
       {/* MODALE */}
-      <div className={`m-4 ${h}`}>
+      <div className="flex justify-center">
+      <div className={`m-4 ${h} fixed z-10 w-[80vw] rounded-2xl backdrop-brightness-75 backdrop-blur-md`}>
         <div className="flex justify-center">
         <h2 className="h2 container " >{access} user details</h2>
-        <h2 className="h2 mx-[10vw] cursor-pointer" ref={ref} onClick={()=>{h==="hidden" ? setH("") : setH("hidden")}}>X</h2>
+        {/* <h2 className="h2 mx-[10vw] cursor-pointer" ref={ref} onClick={()=>{h==="hidden" ? setH("") : setH("hidden")}}>X</h2> */}
+        <img src={cross} alt="X" className={` cursor-pointer h-[5.5vh] w-[5.5vh]`} ref={ref} onClick={closeModale}/>
         </div>
 
         <form className="container mb-3" onSubmit={access==="Add" ? addUser : editUser}>
@@ -345,15 +358,16 @@ function App() {
 
         </form>
       </div>
+      </div>
 
 
-      <div className="" style={{ width: "full" }}>
-          <div className=" flex items-center justify-around gap-[2vw] my-[3vh] mx-[3vw]">
-            <h2 className="h2 inline-block "> <b>All Users</b></h2>
-              <div className="flex items-center gap-[1.5vw]">
+      <div className="overflow-hidden">
+          <div className=" flex items-center justify-around gap-[2vw] my-[3vh] ">
+            <h2 className="h2"> <b>All Users</b></h2>
+              <div className="flex items-center gap-[1.5vw] ">
               <input
                 type="text"
-                className="px-3 py-2 bg-blue-100 rounded-xl"
+                className="px-3 py-2 bg-blue-100 rounded-xl "
                 id="s"
                 placeholder="Search user by name"
                 name="s"
@@ -363,19 +377,18 @@ function App() {
                 onBlur={hideSearch}
                 minLength={1}
               />
-              <button type="button" className="btn btn-primary " onClick={submit}>Search</button>
-              <img src={cross} alt="X" className={` ${h1} h2 cursor-pointer h-[30px] w-[30px]`} ref1={ref1} onClick={hideSearch}/>
+              <button type="button" className="btn btn-outline-primary " onClick={submit}>Search</button>
+              <img src={cross} alt="X" className={` ${h1} cursor-pointer h-[30px] w-[30px]`} ref1={ref1} onClick={hideSearch}/>
               </div>
-            <button className={` btn btn-outline-primary ${h==='hidden' ? '' : 'hidden'}`} onClick={() => {h === "hidden" ? setH("") : setH("hidden")}}>Add a user</button>
-
+            <button className={`btn btn-outline-primary${h==='hidden' ? '' : 'hidden'}`} onClick={() => {setH(""); setAccess("Add")}}>Add a user</button>
           </div>
-        <div className="row">
-
           {isLoading && (
-            <div className="flex justify-center">
+            <div className="flex justify-center ">
               <img src={spinner} alt="Loading....." />
             </div>
           )}
+        <div className="row ">
+
           {l.length > 0 ? (
             l.map((user, index) => <UserItem editUser={editUserPanel} deleteUser={deleteUser} key={index} user={user} />)
           ) : (
@@ -384,8 +397,8 @@ function App() {
         </div>
       </div>
 
-      <div className="w-full flex justify-center ">
-        <div className="flex items-center">
+      <div className=" flex justify-center ">
+        <div className="flex items-center ">
           <button>
             <img
               src={la}
