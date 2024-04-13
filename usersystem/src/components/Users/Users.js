@@ -20,6 +20,24 @@ function App() {
   const ref1 = useRef();
 
 
+  useEffect(() => {
+    fetchUsersReq()
+      .then((da) => {
+        setFixedUsers(da.users);
+      })
+      .catch((err) => {
+        console.log("Error occured! Try refreshing");
+      });
+  }, []);
+
+  useEffect(() => {
+    if (fixedUsers.length > 0) {
+      setList(fixedUsers);
+      setLoading(false);
+    }
+  }, [fixedUsers]);
+  
+
   const fetchUsersReq = async () => {
     const response = await fetch(`${process.env.REACT_APP_HOST}/api/users`, {
       method: "GET",
@@ -51,7 +69,6 @@ function App() {
   }
 
   const editUserReq=async (id,first_name,last_name, email,gender,avatar,domain,available)=>{
-    console.log(id);
     try{
       const response = await fetch(`${process.env.REACT_APP_HOST}/api/users/${id}`, {
         method: "PUT",
@@ -70,7 +87,6 @@ function App() {
     }
   }
   const deleteUserReq=async (id)=>{
-    console.log(id);
     try{
       const response = await fetch(`${process.env.REACT_APP_HOST}/api/users/${id}`, {
         method: "DELETE",
@@ -87,22 +103,6 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    fetchUsersReq()
-      .then((da) => {
-        setFixedUsers(da.users);
-      })
-      .catch((err) => {
-        console.log("Error occured! Try refreshing");
-      });
-  }, []);
-
-  useEffect(() => {
-    if (fixedUsers.length > 0) {
-      setList(fixedUsers);
-      setLoading(false);
-    }
-  }, [fixedUsers]);
 
   useEffect(() => {
     setL(list.slice(20 * i, 20 * i + 20 < list.length ? 20 * i + 20 : list.length));
@@ -113,30 +113,29 @@ function App() {
     setSuser(e.target.value);
     setI(0);
     let z = e.target.value.toLowerCase();
-    setList(
-      list.filter((val) => {
+    setList(fixedUsers.filter((val) => {
         return (
-          val.first_name.slice(0, z.length).toLowerCase() === z ||
-          val.last_name.slice(0, z.length).toLowerCase() === z
+          val.first_name.slice(0, z.length).toLowerCase() === z || val.last_name.slice(0, z.length).toLowerCase() === z
         );
       })
     );
   };
 
-  const submit = (e) => {
+
+/*   
+    Submit button for search user whch is not needed
+    const submit = (e) => {
     e.preventDefault();
     setI(0);
     setL(list.slice(20 * i, 20 * i + 20 < list.length ? 20 * i + 20 : list.length));
     let z = suser.toLowerCase;
-    setList(
-      list.filter((val) => {
+    setList(fixedUsers.filter((val) => {
         return (
-          val.first_name.slice(0, z.length).toLowerCase() === z ||
-          val.last_name.slice(0, z.length).toLowerCase() === z
+          val.first_name.slice(0, z.length).toLowerCase() === z || val.last_name.slice(0, z.length).toLowerCase() === z
         );
       })
     );
-  };
+  }; */
 
   const onChangeee = (e) => {
     if(e.target.type==='checkbox'){
@@ -374,10 +373,9 @@ function App() {
                 value={suser}
                 onChange={onChange}
                 onClick={()=>setH1("")}
-                onBlur={hideSearch}
                 minLength={1}
               />
-              <button type="button" className="btn btn-outline-primary " onClick={submit}>Search</button>
+              {/* <button type="button" className="btn btn-outline-primary " onClick={submit}>Search</button> */}
               <img src={cross} alt="X" className={` ${h1} cursor-pointer h-[30px] w-[30px]`} ref1={ref1} onClick={hideSearch}/>
               </div>
             <button className={`btn btn-outline-primary${h==='hidden' ? '' : 'hidden'}`} onClick={() => {setH(""); setAccess("Add")}}>Add a user</button>
