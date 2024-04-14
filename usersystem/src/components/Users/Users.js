@@ -36,7 +36,7 @@ function App() {
       setLoading(false);
     }
   }, [fixedUsers]);
-  
+
 
   const fetchUsersReq = async () => {
     const response = await fetch(`${process.env.REACT_APP_HOST}/api/users`, {
@@ -227,6 +227,11 @@ function App() {
           console.log("An error occured! Try refreshing");
         });
     }
+    const addUserModale=() => {
+      setH("")
+      setAccess("Add")
+      setN({id : "",first_name : "",last_name : "",email : "",gender : "Male",avatar : "",domain : "",available : true});
+    }
 
   return (
     <div className=" text-center flex-col border-solid my-2 ">      
@@ -378,7 +383,7 @@ function App() {
               {/* <button type="button" className="btn btn-outline-primary " onClick={submit}>Search</button> */}
               <img src={cross} alt="X" className={` ${h1} cursor-pointer h-[30px] w-[30px]`} ref1={ref1} onClick={hideSearch}/>
               </div>
-            <button className={`btn btn-outline-primary${h==='hidden' ? '' : 'hidden'}`} onClick={() => {setH(""); setAccess("Add")}}>Add a user</button>
+            <button className={`btn btn-outline-primary${h==='hidden' ? '' : 'hidden'}`} onClick={addUserModale}>Add a user</button>
           </div>
           {isLoading && (
             <div className="flex justify-center ">
@@ -395,30 +400,25 @@ function App() {
         </div>
       </div>
 
-      <div className=" flex justify-center ">
-        <div className="flex items-center ">
-          <button>
-            <img
-              src={la}
-              alt=""
-              className="h-[4vh]"
-              onClick={() => {
-                i > 0 ? setI(i - 1) : setI(i);
-              }}
-            />
-          </button>
+      <div className=" flex justify-around items-center gap-">
+
+        <div className="flex">
+          <button><img src={la} alt="" className="h-[4vh]" onClick={() => { i > 0 ? setI(i - 1) : setI(i) }} /></button>
           <h3 className="h3 mx-3">Page : {i + 1}</h3>
-          <button>
-            <img
-              src={ra}
-              alt=""
-              className="h-[4vh]"
-              onClick={() => {
-                list.length / 20 > i + 1 ? setI(i + 1) : setI(i);
-              }}
-            />
-          </button>
+          <button><img src={ra} alt="" className="h-[4vh]" onClick={() => {   list.length / 20 > i + 1 ? setI(i + 1) : setI(i); }}/></button>
         </div>
+
+        <div className=" flex items-center justify-center gap-2 " >
+          <label htmlFor="page"><h3 className="h3">Page</h3></label>
+          <select id="page" value="page" className=" border-2 text-[1.5em] py-0">
+          {
+            !isLoading && Array.from({length: list.length / 20}, (_, j) => j + 1).map((item,index)=>{
+              return  <option className='font-bold' value={item+1} onClick={()=>setI(item+1)}>{item}</option>
+            })
+          }
+            </select>
+            <label htmlFor="page"><h3 className="h3">of {Math.floor(list.length/20)}</h3></label>
+          </div>
       </div>
     </div>
   );
