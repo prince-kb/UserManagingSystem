@@ -1,74 +1,104 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
+import TeamItem from "./TeamItem";
+import spinner from "../../assets/svg/spinner.svg";
 
 const Teams = () => {
-  const [fetchedUsers,setFetchedUsers] = useState([]);
-  const [fetchedTeams,setFetchedTeams]= useState([]);
-  const [hideLoader,setHideLoader] = useState(0);
+  const colors = [ "#fff1f2","#fdf2f8","#fdf4ff","#faf5ff","#f5f3ff","#eef2ff","#eff6ff","#f0f9ff","#ecfeff","#f0fdfa","#ecfdf5","#f0fdf4","#f7fee7","#fefce8","#fffbeb","#fff7ed","#fef2f2","#fafaf9","#f3f4f6",
+    // "red","blue","green","orange","yellow","violet",
+    // "Slate","Zinc","Emerald","fuchsia","cyan","rose","teal","emerald","lime","amber","zinc","neutral","stone","slate",
+];
+  const [fetchedUsers, setFetchedUsers] = useState([]);
+  const [fetchedTeams, setFetchedTeams] = useState([]);
+  const [hidden, setHidden] = useState(false);
 
+  let randCol = ()=>{
+    return colors[Math.floor(Math.random() * colors.length)]
+  }
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchTeamsReq()
-      .then((data)=>{
+      .then((data) => {
         setFetchedTeams(data);
-        setHideLoader(1);
       })
-      .catch((err)=>{
-        console.log(err)
-      })
+      .catch((err) => {
+        console.log(err);
+      });
 
     fetchUsersReq()
-      .then((data)=>{
+      .then((data) => {
         setFetchedUsers(data.users);
-        setHideLoader(2);
+        setHidden(true);
       })
-      .catch((err)=>{
-        console.log(err)
-      })
-  },[])
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
-
-
-  const fetchTeamsReq = async()=>{
-    const res = await fetch(`${process.env.REACT_APP_HOST}/teamapi/teams`,{
-      method : "GET",
-      headers : {
-        "Content-Type" : "application/json"
-      }
-    })
+  const fetchTeamsReq = async () => {
+    const res = await fetch(`${process.env.REACT_APP_HOST}/teamapi/teams`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
     const n = await res.json();
     return n.teams;
-  }
+  };
 
   const fetchUsersReq = async () => {
     const response = await fetch(`${process.env.REACT_APP_HOST}/api/users`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
       },
     });
     const n = await response.json();
     return n;
   };
-
-
-  const showData=()=>{
-    console.log(fetchedUsers)
-    fetchedTeams.map((item,index)=>{
-      item.id.map((item1,index1)=>{
-        // let x = fetchedUsers.find({id : item1});
-        // console.log(x);
-      })
-    })
-  }
+  const y = {
+    available: false,
+    avatar: "",
+    date: "2024-04-13T15:10:52.343Z",
+    domain: "No Domain",
+    email: "Email not available",
+    first_name: "ABCD",
+    gender: "Male",
+    id: "XXXX",
+    last_name: "EFGH",
+    _id: "",
+  };
 
   return (
-    <div className=''>
-      <div className="h2">TEAMS</div>
-      <h1 className="h1">{hideLoader}</h1>
-      <button onClick={showData}>FETCH</button>
+    <div className="">
+      <div className="text-center h2">ALL TEAMS</div>
 
+      {/* Spinner */}
+      {!hidden && (
+        <div className="flex justify-center ">
+          <img src={spinner} alt="Loading....." />
+        </div>
+      )}
+
+      {/* Teams */}
+
+      {hidden &&
+        fetchedTeams.map((team, i) => {
+          return (
+            <div className={`row mx-2 my-[3vh] ${hidden}`} style={{backgroundColor : randCol()}} key={i}>
+              <h3 className="text-center h3">
+                <b>{team.name}</b>
+              </h3>
+              {team.id.map((teamMember, j) => {
+                let x = fetchedUsers.filter((users) => users.id === teamMember);
+                return <TeamItem key={j} user={x.length === 0 ? y : x[0]} />;
+              })}
+            </div>
+          );
+        })}
     </div>
-  )
-}
+  );
+};
 
-export default Teams
+export default Teams;
