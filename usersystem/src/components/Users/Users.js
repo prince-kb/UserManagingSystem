@@ -7,17 +7,20 @@ import cross from "../../assets/svg/cross.svg";
 
 function App() {
   const [fixedUsers, setFixedUsers] = useState([]);
-  const [isLoading, setLoading] = useState(true);
-  const [suser, setSuser] = useState("");
+  const [teams,setTeams] = useState([]);
   const [list, setList] = useState([]);
+  const [suser, setSuser] = useState("");
+  const [isLoading, setLoading] = useState(true);
   const [access, setAccess] = useState('Add');
+  const [teamUser, setTeamUser] = useState(null);
+  const [teamName, setTeamName] = useState(null);
   const [n, setN] = useState({id : "",first_name : "",last_name : "",email : "",gender : "",avatar : "",domain : "",available : true});
   const [h, setH] = useState('hidden');
   const [h1, setH1] = useState('hidden');
+  const [h2, setH2] = useState('hidden');
   const [l, setL] = useState([]);
   const [i, setI] = useState(0);
   const ref=useRef();
-  const ref1 = useRef();
 
 
   useEffect(() => {
@@ -28,6 +31,14 @@ function App() {
       .catch((err) => {
         console.log("Error occured! Try refreshing");
       });
+
+      fetchTeams()
+        .then((data)=>{
+          setTeams(data);
+        })
+        .catch((err)=>{
+          console.log("Error in fetching teams")
+        })
   }, []);
 
   useEffect(() => {
@@ -36,6 +47,11 @@ function App() {
       setLoading(false);
     }
   }, [fixedUsers]);
+
+  
+  useEffect(() => {
+    setL(list.slice(20 * i, 20 * i + 20 < list.length ? 20 * i + 20 : list.length));
+  }, [list, i]);
 
 
   const fetchUsersReq = async () => {
@@ -103,15 +119,42 @@ function App() {
     }
   }
 
+  const fetchTeams = async()=>{
+    try{
+      const x = await fetch(`${process.env.REACT_APP_HOST}/teamapi/teams`,{
+        method : "GET",
+        headers : {
+          "Content-type" : "application/json"
+        }
+      })
+      const res = await x.json();
+      return res.teams
+      
+    }catch(err){
+      console.log("Cannot fetch teams")
+    }
+  }
 
-  useEffect(() => {
-    setL(list.slice(20 * i, 20 * i + 20 < list.length ? 20 * i + 20 : list.length));
-  }, [list, i]);
+  const addToTeamReq = async(id,name)=>{
+    try{
+      const x = await fetch(`${process.env.REACT_APP_HOST}/teamapi/team/${id}`,{
+        method : "PUT",
+        headers : {
+          "Content-type" : "application/json"
+        },
+        body : JSON.stringify({name})
+      })
+      const res = await x.json();
+      return res;
+    }catch(err){
+      console.log("Cannot add user to team ",name)
+    }
+  }
 
   const onChange = (e) => {
     setH1("");
     setSuser(e.target.value);
-    setI(0);
+    setI(1);
     let z = e.target.value.toLowerCase();
     setList(fixedUsers.filter((val) => {
         return (
@@ -120,22 +163,6 @@ function App() {
       })
     );
   };
-
-
-/*   
-    Submit button for search user whch is not needed
-    const submit = (e) => {
-    e.preventDefault();
-    setI(0);
-    setL(list.slice(20 * i, 20 * i + 20 < list.length ? 20 * i + 20 : list.length));
-    let z = suser.toLowerCase;
-    setList(fixedUsers.filter((val) => {
-        return (
-          val.first_name.slice(0, z.length).toLowerCase() === z || val.last_name.slice(0, z.length).toLowerCase() === z
-        );
-      })
-    );
-  }; */
 
   const onChangeee = (e) => {
     if(e.target.type==='checkbox'){
@@ -227,11 +254,34 @@ function App() {
           console.log("An error occured! Try refreshing");
         });
     }
+
     const addUserModale=() => {
       setH("")
       setAccess("Add")
       setN({id : "",first_name : "",last_name : "",email : "",gender : "Male",avatar : "",domain : "",available : true});
     }
+
+    const addUserToTeam=(e)=>{
+      setTeamUser(e);
+      setH2("");
+    }
+
+    const addToTeam = (e)=>{
+      setTeamName(e.target.innerText)
+      setH2("hidden");
+      addToTeamReq(teamUser,e.target.innerText)
+    }
+    
+    const pageNo=(e)=>{
+      setI(e.target.value -1)
+    }
+    
+    const addToNewTeam=()=>{
+      addToTeamReq(teamUser,teamName)
+      setH2("hidden");
+
+    }
+
 
   return (
     <div className=" text-center flex-col border-solid my-2 ">      
@@ -364,6 +414,25 @@ function App() {
       </div>
       </div>
 
+      <div className={`flex gap-2 items-center p-3 rounded-3xl ${h2} top-[30vh] left-[50vw] -translate-x-1/2 z-[3] fixed bg-green-300`}>
+                  <button className="" aria-expanded="true"  data-bs-toggle="dropdown" >Select Team to add User</button>
+                  <img src={cross} alt="X" className="h-[2vh] w-[2vh] cursor-pointer" onClick={()=>setH2("hidden")}/>
+                  <ul className="dropdown-menu">
+                    {
+                      teams.map((item,i)=>{
+                  return <li key={i}><h3  className="dropdown-item" value={item.name} onClick={(e)=>{setTeamName(e.target.innerText); addToTeam(e)}}>{item.name}</h3></li>
+                      })
+                    }
+                    <div >
+                      <li className="">
+                        <input type="text" id="newTeam" className="border my-1" onChange={(e)=>{setTeamName(e.target.value)}} placeholder="New Team" />
+                        <button className="btn btn-primary btn-sm submit" onClick={addToNewTeam}>Add to new team</button>
+                        </li>
+                      </div>
+
+                  </ul>
+                </div>
+
 
       <div className="overflow-hidden">
           <div className=" flex items-center justify-around gap-[2vw] my-[3vh] ">
@@ -381,10 +450,11 @@ function App() {
                 minLength={1}
               />
               {/* <button type="button" className="btn btn-outline-primary " onClick={submit}>Search</button> */}
-              <img src={cross} alt="X" className={` ${h1} cursor-pointer h-[30px] w-[30px]`} ref1={ref1} onClick={hideSearch}/>
+              <img src={cross} alt="X" className={` ${h1} cursor-pointer h-[30px] w-[30px]`} onClick={hideSearch}/>
               </div>
             <button className={`btn btn-outline-primary${h==='hidden' ? '' : 'hidden'}`} onClick={addUserModale}>Add a user</button>
           </div>
+
           {isLoading && (
             <div className="flex justify-center ">
               <img src={spinner} alt="Loading....." />
@@ -393,7 +463,7 @@ function App() {
         <div className="row ">
 
           {l.length > 0 ? (
-            l.map((user, index) => <UserItem editUser={editUserPanel} deleteUser={deleteUser} key={index} user={user} />)
+            l.map((user, index) => <UserItem addUserToTeam={addUserToTeam} editUser={editUserPanel} deleteUser={deleteUser} key={index} user={user} />)
           ) : (
             <h2 className="h2">No Users available</h2>
           )}
@@ -405,19 +475,19 @@ function App() {
         <div className="flex">
           <button><img src={la} alt="" className="h-[4vh]" onClick={() => { i > 0 ? setI(i - 1) : setI(i) }} /></button>
           <h3 className="h3 mx-3">Page : {i + 1}</h3>
-          <button><img src={ra} alt="" className="h-[4vh]" onClick={() => {   list.length / 20 > i + 1 ? setI(i + 1) : setI(i); }}/></button>
+          <button><img src={ra} alt="" className="h-[4vh]" onClick={() => {list.length / 20 > i + 1 ? setI(i + 1) : setI(i)}}/></button>
         </div>
 
         <div className=" flex items-center justify-center gap-2 " >
           <label htmlFor="page"><h3 className="h3">Page</h3></label>
-          <select id="page" value="page" className=" border-2 text-[1.5em] py-0">
+          <select id="page" className=" border-2 text-[1.5em] py-0" value={i+1} onChange={pageNo}>
           {
-            !isLoading && Array.from({length: list.length / 20}, (_, j) => j + 1).map((item,index)=>{
-              return  <option className='font-bold' value={item+1} onClick={()=>setI(item+1)}>{item}</option>
+            !isLoading && Array.from({length: list.length / 20 +1}, (_, j) => j + 1).map((item,i)=>{
+              return  <option key = {i} className='font-bold' value={item}>{item}</option>
             })
           }
             </select>
-            <label htmlFor="page"><h3 className="h3">of {Math.floor(list.length/20)}</h3></label>
+            <label htmlFor="page"><h3 className="h3">of {Math.floor(list.length/20)+1}</h3></label>
           </div>
       </div>
     </div>

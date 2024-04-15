@@ -70,6 +70,10 @@ const Teams = () => {
     _id: "",
   };
 
+  const del = (team)=>{
+    
+  }
+
   return (
     <div className="">
       <div className="text-center h2">ALL TEAMS</div>
@@ -86,13 +90,11 @@ const Teams = () => {
       {hidden &&
         fetchedTeams.map((team, i) => {
           return (
-            <div className={`row mx-2 my-[3vh] ${hidden}`} style={{backgroundColor : randCol()}} key={i}>
-              <h3 className="text-center h3">
-                <b>{team.name}</b>
-              </h3>
+            <div className={`row mx-2 my-[3vh] flex justify-center ${hidden} rounded-2xl mx-2`} style={{backgroundColor : randCol()}} key={i}>
+              <h3 className="text-center h3"><b>{team.name}</b></h3>
               {team.id.map((teamMember, j) => {
                 let x = fetchedUsers.filter((users) => users.id === teamMember);
-                return <TeamItem key={j} user={x.length === 0 ? y : x[0]} />;
+                return <TeamItem del={del} key={j} user={x.length === 0 ? y : {...x[0],teamName : team.name}} />;
               })}
             </div>
           );

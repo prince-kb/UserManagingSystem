@@ -1,12 +1,18 @@
 import React from "react";
+import del from '../../assets/svg/delete.svg'
+import cross from "../../assets/svg/cross.svg";
+
 
 const TeamItem = (props) => {
   let idd = props.user;
 //   console.log(idd);
   return (
-      <div className="col-md-3 my-2">
-        <div className={`card rounded-2xl ${window.innerWidth < 768 ? "flex-row justify-center" : ""} `}>
-            <div className={` bg-blue-100 p-[2vw] ${window.innerWidth < 768 ? "rounded-l-xl" : "rounded-t-xl"} flex items-center`}>
+      <div className="col-md-4 my-2">
+        <div className={`card rounded-2xl relative ${window.innerWidth < 768 ? "flex-row justify-around" : ""} `}>
+            <div>
+              <img src={cross} alt="X" className="h-[4.5vh] absolute right-0 cursor-pointer" onClick={()=>(props.del(idd))}/>
+            </div>
+            <div className={` bg-blue-100 p-[2vw]  ${window.innerWidth < 768 ? "rounded-l-xl" : "rounded-t-xl"} flex items-center`}>
               <img src={idd.avatar ? idd.avatar : "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"} alt="Not available" className={`mx-auto w-[10vh] h-[10vh]`}/>
               <div className="py-2 px-2 flex-row justify-center text-center">
               <h6>{idd.id}</h6>
