@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import TeamItem from "./TeamItem";
 import spinner from "../../assets/svg/spinner.svg";
+import refresh from "../../assets/svg/refresh.svg";
 
 const Teams = () => {
   const colors = [ "#fff1f2","#fdf2f8","#fdf4ff","#faf5ff","#f5f3ff","#eef2ff","#eff6ff","#f0f9ff","#ecfeff","#f0fdfa","#ecfdf5","#f0fdf4","#f7fee7","#fefce8","#fffbeb","#fff7ed","#fef2f2","#fafaf9","#f3f4f6",
@@ -57,26 +58,61 @@ const Teams = () => {
     const n = await response.json();
     return n;
   };
-  const y = {
-    available: false,
-    avatar: "",
-    date: "2024-04-13T15:10:52.343Z",
-    domain: "No Domain",
-    email: "Email not available",
-    first_name: "ABCD",
-    gender: "Male",
-    id: "XXXX",
-    last_name: "EFGH",
-    _id: "",
-  };
 
-  const del = (team)=>{
-    
+  const delUserReq=async(id,teamName)=>{
+    const res = await fetch(`${process.env.REACT_APP_HOST}/teamapi/team/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body : JSON.stringify({name : teamName})
+    });
+    const n = await res.json();
+    return n;
+  }
+
+  const del = async (team)=>{
+    await delUserReq(team.teamUser,team.teamName);
+    setHidden(false);
+    fetchTeamsReq()
+      .then((data) => {
+        setFetchedTeams(data);
+        setHidden(true);
+      })
+      .catch((err) => {
+        console.log("Error in fetching teams");
+      });
+  }
+
+  const refr=()=>{
+    setHidden(false);
+
+    fetchUsersReq()
+    .then((data) => {
+      setFetchedUsers(data.users);
+    })
+    .catch((err) => {
+      console.log("Error in fetching users");
+    });
+    fetchTeamsReq()
+      .then((data) => {
+        setFetchedTeams(data);
+        setHidden(true);
+      })
+      .catch((err) => {
+        console.log("Error in fetching teams");
+      });
   }
 
   return (
     <div className="">
-      <div className="text-center h2">ALL TEAMS</div>
+      <div className="text-center h1 my-2 mx-auto relative">ALL TEAMS
+      <div className="absolute right-1 top-0">
+        <img src={refresh} alt="REFRESH" className="cursor-pointer h-[6vh] w-[6vh] " onClick={refr}/>
+      </div>
+      </div>
+      
 
       {/* Spinner */}
       {!hidden && (
@@ -94,7 +130,8 @@ const Teams = () => {
               <h3 className="text-center h3"><b>{team.name}</b></h3>
               {team.id.map((teamMember, j) => {
                 let x = fetchedUsers.filter((users) => users.id === teamMember);
-                return <TeamItem del={del} key={j} user={x.length === 0 ? y : {...x[0],teamName : team.name}} />;
+                // console.log(teamMember)
+                return <TeamItem del={del} key={j} user={x.length === 0 ? {teamName : team.name,teamUser : teamMember} : {...x[0],teamName : team.name,teamUser : teamMember}} />;
               })}
             </div>
           );

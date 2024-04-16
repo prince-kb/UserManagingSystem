@@ -1,5 +1,4 @@
 import React from "react";
-import del from '../../assets/svg/delete.svg'
 import cross from "../../assets/svg/cross.svg";
 
 
@@ -8,7 +7,7 @@ const TeamItem = (props) => {
 //   console.log(idd);
   return (
       <div className="col-md-4 my-2">
-        <div className={`card rounded-2xl relative ${window.innerWidth < 768 ? "flex-row justify-around" : ""} `}>
+        <div className={`card rounded-2xl relative ${window.innerWidth < 768 ? "flex-row justify-normal" : ""} `}>
             <div>
               <img src={cross} alt="X" className="h-[4.5vh] absolute right-0 cursor-pointer" onClick={()=>(props.del(idd))}/>
             </div>
@@ -20,8 +19,8 @@ const TeamItem = (props) => {
               <h6><small>{idd.available ? <h3 className="text-green-500">Available</h3> : <h3 className="text-red-700">Not Available</h3>}</small></h6>
               </div>
             </div>
-          <div className="text-center">
-            <h2 className="h4 mt-[0.6vw] py-1">{idd.first_name} {idd.last_name}</h2>
+          <div className={`text-center ${window.innerWidth < 768 ? 'ml-[10vh]' : ''}`}>
+            <h2 className="h4 mt-[0.6vw] py-1">{idd.first_name ? idd.first_name : "User not found"} {idd.last_name}</h2>
             <h6 className="h6 mb-2 text-body-secondary">{idd.email}</h6>
             <p>{idd.domain}</p>
           </div>

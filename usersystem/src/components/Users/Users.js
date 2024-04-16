@@ -4,6 +4,7 @@ import la from "../../assets/svg/leftarrow.svg";
 import ra from "../../assets/svg/rightarrow.svg";
 import spinner from "../../assets/svg/spinner.svg";
 import cross from "../../assets/svg/cross.svg";
+import refresh from "../../assets/svg/refresh.svg";
 
 function App() {
   const [fixedUsers, setFixedUsers] = useState([]);
@@ -21,6 +22,8 @@ function App() {
   const [l, setL] = useState([]);
   const [i, setI] = useState(0);
   const ref=useRef();
+
+
 
 
   useEffect(() => {
@@ -59,27 +62,28 @@ function App() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
       },
     });
     const n = await response.json();
     return n;
   };
 
-  const addUserReq=async (id,first_name,last_name, email,gender,avatar,domain,available)=>{
+  const addUserReq=async (id,first_name,last_name,email,gender,avatar,domain,available)=>{
     try{
       const response = await fetch(`${process.env.REACT_APP_HOST}/api/users`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({id,first_name,last_name, email,gender,avatar,domain,available}),
       });
       const res = await response.json();
       return res;
-      // setFixedUsers(fixedUsers.concat(res.user));
     }
     catch(err){
-      console.log(err)
+      console.log("Error occured while adding user")
       return err;
     }
   }
@@ -89,7 +93,8 @@ function App() {
       const response = await fetch(`${process.env.REACT_APP_HOST}/api/users/${id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({id,first_name,last_name, email,gender,avatar,domain,available}),
       });
@@ -98,7 +103,7 @@ function App() {
       // setFixedUsers(fixedUsers.concat(res.user));
     }
     catch(err){
-      console.log(err)
+      console.log("Error occured while editing user")
       return err;
     }
   }
@@ -107,14 +112,15 @@ function App() {
       const response = await fetch(`${process.env.REACT_APP_HOST}/api/users/${id}`, {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
         }
       });
       const res = await response.json();
       return res;
     }
     catch(err){
-      console.log(err)
+      console.log("Error occured while deleting user")
       return err;
     }
   }
@@ -124,7 +130,8 @@ function App() {
       const x = await fetch(`${process.env.REACT_APP_HOST}/teamapi/teams`,{
         method : "GET",
         headers : {
-          "Content-type" : "application/json"
+          "Content-type" : "application/json",
+          "Access-Control-Allow-Origin": "*",
         }
       })
       const res = await x.json();
@@ -140,7 +147,8 @@ function App() {
       const x = await fetch(`${process.env.REACT_APP_HOST}/teamapi/team/${id}`,{
         method : "PUT",
         headers : {
-          "Content-type" : "application/json"
+          "Content-type" : "application/json",
+          "Access-Control-Allow-Origin": "*",
         },
         body : JSON.stringify({name})
       })
@@ -154,15 +162,28 @@ function App() {
   const onChange = (e) => {
     setH1("");
     setSuser(e.target.value);
-    setI(1);
+    setI(0);
     let z = e.target.value.toLowerCase();
-    setList(fixedUsers.filter((val) => {
+    let x = []
+    z.split(' ').map((val) => {
+      x.push(val);
+      return null;
+    });
+    if(x.length===2){
+      setList(fixedUsers.filter((val) => {
         return (
-          val.first_name.slice(0, z.length).toLowerCase() === z || val.last_name.slice(0, z.length).toLowerCase() === z
+          val.first_name.slice(0, x[0].length).toLowerCase() === x[0] && val.last_name.slice(0, x[1].length).toLowerCase() === x[1]
         );
       })
-    );
-  };
+    )}
+  else {
+    setList(fixedUsers.filter((val) => {
+      return (
+        val.first_name.slice(0, z.length).toLowerCase() === z || val.last_name.slice(0, z.length).toLowerCase() === z
+      );
+    })
+  );
+  }};
 
   const onChangeee = (e) => {
     if(e.target.type==='checkbox'){
@@ -186,7 +207,7 @@ function App() {
     await addUserReq(id,first_name,last_name,email,n.gender,avatar,domain,n.available);
 
     ref.current.click();
-
+    setLoading(true);
     fetchUsersReq()
     .then((da) => {
       setFixedUsers(da.users);
@@ -282,6 +303,19 @@ function App() {
 
     }
 
+    const refr = ()=>{
+      setLoading(true);
+      fetchUsersReq()
+      .then((da) => {
+        setFixedUsers(da.users);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log("An error occured! Try refreshing");
+      });
+    }
+
+
 
   return (
     <div className=" text-center flex-col border-solid my-2 ">      
@@ -298,13 +332,14 @@ function App() {
         <form className="container mb-3" onSubmit={access==="Add" ? addUser : editUser}>
           <div className="form-floating mb-3">
             <input
-              type="text"
+              type="number"
               className="form-control"
               id="id"
               name="id"
               value={n.id}
               onChange={onChangeee}
               disabled={access==="Edit"}
+              minLength={1}
               required
             />
             <label htmlFor="id">ID of the user</label>
@@ -408,7 +443,7 @@ function App() {
             </div>
 
           </div>
-            <button type="submit" className="btn btn-primary" >{access} Note</button>
+            <button type="submit" className="btn btn-primary" >{access} User</button>
 
         </form>
       </div>
@@ -453,6 +488,9 @@ function App() {
               <img src={cross} alt="X" className={` ${h1} cursor-pointer h-[30px] w-[30px]`} onClick={hideSearch}/>
               </div>
             <button className={`btn btn-outline-primary${h==='hidden' ? '' : 'hidden'}`} onClick={addUserModale}>Add a user</button>
+              <div className="top-0">
+              <img src={refresh} alt="REFRESH" className="cursor-pointer h-[6vh] w-[6vh] " onClick={refr}/>
+            </div>
           </div>
 
           {isLoading && (
