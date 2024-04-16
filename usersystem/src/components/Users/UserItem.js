@@ -2,6 +2,7 @@ import React from 'react'
 import add from '../../assets/svg/add.svg'
 import del from '../../assets/svg/delete.svg'
 import edit from '../../assets/svg/edit.svg'
+import nouser from '../../assets/svg/nouser.svg';
 import Tooltip from '@mui/material/Tooltip';
 
 const UserItem = (props) => {
@@ -15,7 +16,7 @@ const UserItem = (props) => {
             
             <div className='my-3 '>
               <div className="bg-red-100 rounded-xl m-2">
-              <img src={idd.avatar} alt="Not available" className='mx-auto h-[10vh]'/>
+              <img src={idd.avatar ? idd.avatar : nouser} alt="Not available" className='mx-auto h-[10vh]'/>
                 <h6>{idd.id}</h6>
                 <h6>{idd.gender}</h6>
                 <h6><small>{idd.available ? <h3 className='text-green-500'>Available</h3> : <h3 className='text-red-600'>Not Available</h3>}</small></h6>
