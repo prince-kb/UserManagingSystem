@@ -44,6 +44,26 @@ router.put("/team/:id", async (req, res) => {
 });
 
 
+router.delete("/team/:id", async (req, res) => {
+  let id = Number.parseInt(req.params.id);
+  let { name } = req.body;
+  try {
+    const n = await Team.findOne({ name: name });
+    let p =  n.id.filter((e) => e !== id);
+    try{
+    const z = await Team.findOneAndUpdate({ name:name},{id : p});
+    }catch(err){
+      return res.json({success : false,error : "User not found"});
+    }
+
+    return res.json({ success: true,id : id});
+
+
+  }catch(err){
+    return res.json({success : false,error : err})
+  }
+})
+
 //Deleting a team
 router.delete("/team",async(req,res)=>{
     const {name} = req.body
