@@ -30,10 +30,16 @@ router.post(
   async (req, res) => {
     const { id,first_name,last_name, email,gender,avatar,domain,available } = req.body;
     try{
-      const details = await User.create({
-        id,first_name,last_name, email,gender,avatar,domain,available
-      });
-      return res.json({success : "User added", details : details});
+
+      // const details = await User.create({
+      //   id,first_name,last_name, email,gender,avatar,domain,available
+      // });
+
+      const ussers = await User.find();
+      const c = {id,first_name,last_name, email,gender,avatar,domain,available}
+      ussers.unshift(c);
+      await User.save();
+      return res.json({success : "User added", details : c});
     }
     catch(e){
       return res.status(404).json({error : "ID and Email address must be unique",success : false});
