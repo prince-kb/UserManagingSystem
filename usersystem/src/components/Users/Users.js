@@ -21,7 +21,7 @@ function App() {
   const [h2, setH2] = useState('hidden');
   const [l, setL] = useState([]);
   const [i, setI] = useState(0);
-  const [device,setDevice]= useState('desktop');
+  const [device,setDevice]= useState(window.innerWidth < 768 ? 'mobile':'desktop');
   const ref=useRef();
 
 
@@ -496,7 +496,7 @@ function App() {
               </div>
             <button className={`btn btn-outline-primary${h==='hidden' ? '' : 'hidden'}`} onClick={addUserModale}>Add a user</button>
               <div className="flex justify-center">
-              <img src={refresh} alt="REFRESH" className="cursor-pointer h-[6vw]" onClick={refr}/>
+              <img src={refresh} alt="REFRESH" className={`h-[50px] cursor-pointer `} onClick={refr}/>
             </div>
           </div>
 
@@ -505,7 +505,7 @@ function App() {
               <img src={spinner} alt="Loading....." />
             </div>
           )}
-        <div className="row ">
+        <div className="row">
 
           {l.length > 0 ? (
             l.map((user, index) => <UserItem addUserToTeam={addUserToTeam} editUser={editUserPanel} deleteUser={deleteUser} key={index} user={user} />)

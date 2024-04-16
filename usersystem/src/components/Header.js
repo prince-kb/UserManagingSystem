@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 const Header = () => {
 
-  const [device,setDevice]= useState('desktop');
+  const [device,setDevice]= useState(window.innerWidth < 768 ? 'mobile':'desktop');
 
   useEffect(() => {
     window.addEventListener("resize", () => {
