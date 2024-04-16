@@ -22,16 +22,17 @@ const Teams = () => {
         setFetchedTeams(data);
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Error in fetching teams");
       });
 
     fetchUsersReq()
       .then((data) => {
         setFetchedUsers(data.users);
+        if(data.success)
         setHidden(true);
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Error in fetching users");
       });
   }, []);
 
@@ -130,7 +131,6 @@ const Teams = () => {
               <h3 className="text-center h3"><b>{team.name}</b></h3>
               {team.id.map((teamMember, j) => {
                 let x = fetchedUsers.filter((users) => users.id === teamMember);
-                // console.log(teamMember)
                 return <TeamItem del={del} key={j} user={x.length === 0 ? {teamName : team.name,teamUser : teamMember} : {...x[0],teamName : team.name,teamUser : teamMember}} />;
               })}
             </div>

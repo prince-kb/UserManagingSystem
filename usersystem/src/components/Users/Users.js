@@ -21,10 +21,16 @@ function App() {
   const [h2, setH2] = useState('hidden');
   const [l, setL] = useState([]);
   const [i, setI] = useState(0);
+  const [device,setDevice]= useState('desktop');
   const ref=useRef();
 
 
 
+  useEffect(() => {
+    window.addEventListener("resize", () => {
+    window.innerWidth < 768 ? setDevice('mobile') : setDevice('desktop');
+    })
+  })
 
   useEffect(() => {
     fetchUsersReq()
@@ -317,6 +323,7 @@ function App() {
 
 
 
+
   return (
     <div className=" text-center flex-col border-solid my-2 ">      
 
@@ -470,12 +477,12 @@ function App() {
 
 
       <div className="overflow-hidden">
-          <div className=" flex items-center justify-around gap-[2vw] my-[3vh] ">
+          <div className={` my-[2vh] ${device==="desktop" ? 'flex items-center justify-around gap-[2vw]' : 'flex-col justify-center items-center'}`}>
             <h2 className="h2"> <b>All Users</b></h2>
-              <div className="flex items-center gap-[1.5vw] ">
+              <div className="flex items-center gap-[1.5vw] justify-center">
               <input
                 type="text"
-                className="px-3 py-2 bg-blue-100 rounded-xl "
+                className="px-3 py-2 bg-blue-100 rounded-xl my-2"
                 id="s"
                 placeholder="Search user by name"
                 name="s"
@@ -488,8 +495,8 @@ function App() {
               <img src={cross} alt="X" className={` ${h1} cursor-pointer h-[30px] w-[30px]`} onClick={hideSearch}/>
               </div>
             <button className={`btn btn-outline-primary${h==='hidden' ? '' : 'hidden'}`} onClick={addUserModale}>Add a user</button>
-              <div className="top-0">
-              <img src={refresh} alt="REFRESH" className="cursor-pointer h-[6vh] w-[6vh] " onClick={refr}/>
+              <div className="flex justify-center">
+              <img src={refresh} alt="REFRESH" className="cursor-pointer h-[6vw]" onClick={refr}/>
             </div>
           </div>
 

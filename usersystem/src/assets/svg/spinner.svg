@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="245" height="245" style="shape-rendering: auto; display: block; background: rgb(255, 255, 255);" xmlns:xlink="http://www.w3.org/1999/xlink"><g><g transform="rotate(0 50 50)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="500" height="500" style="shape-rendering: auto; display: block; background: rgb(255, 255, 255);" xmlns:xlink="http://www.w3.org/1999/xlink"><g><g transform="rotate(0 50 50)">
   <rect x="48.5" y="31.5" rx="1.5" ry="2.05" width="3" height="5" fill="#fe718d">
     <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.7042253521126761s" begin="-0.6628003314001657s" repeatCount="indefinite"></animate>
   </rect>
