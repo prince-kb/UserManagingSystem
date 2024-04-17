@@ -2,7 +2,6 @@ import React,{useState,useEffect} from "react";
 import cross from "../../assets/svg/cross.svg";
 import nouser from "../../assets/svg/nouser.svg";
 
-
 const TeamItem = (props) => {
   let idd = props.user;
   const [device,setDevice]= useState(window.innerWidth < 768 ? 'mobile':'desktop');
@@ -27,7 +26,7 @@ const TeamItem = (props) => {
             </div>
           <div className={`text-center ${device==='mobile' ? 'ml-[1vh]' : ''}`}>
             <h2 className="h4 mt-[0.6vw] py-1">{idd.first_name ? idd.first_name : "User not found"} {idd.last_name}</h2>
-            <h6 className="h6 mb-2 text-body-secondary">{idd.email.length > 20 && window.innerWidth<500 ? idd.email.slice(0,15) : idd.email}</h6>
+            <h6 className="h6 mb-2 text-body-secondary">{idd.email && idd.email.length > 20  && window.innerWidth<500 ? idd.email.slice(0,15) : idd.email }</h6>
             <p>{idd.domain}</p>
           </div>
         </div>
